@@ -1,0 +1,4 @@
+# /etc/rkhunter.conf.local
+# Known-good exceptions that keep the daily run at zero warnings.
+ALLOWHIDDENFILE=/etc/.updated
+WEB_CMD=""

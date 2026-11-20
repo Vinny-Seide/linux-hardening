@@ -1,0 +1,17 @@
+# /etc/systemd/system/arp-pin@.service
+# Pin a static ARP entry so a trusted neighbor (the gateway, the hub) can't be spoofed on the LAN.
+# Instance name is <ip>_<mac>, for example:
+#   systemctl enable --now arp-pin@192.168.40.1_00:11:22:33:44:55.service
+[Unit]
+Description=Static ARP entry %i
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/sbin/arp-pin add %i
+ExecStop=/usr/local/sbin/arp-pin del %i
+
+[Install]
+WantedBy=multi-user.target

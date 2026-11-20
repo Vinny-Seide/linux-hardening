@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Usage: arp-pin add|del <ip>_<mac>
+# Installed to /usr/local/sbin/arp-pin and called by arp-pin@.service.
+set -euo pipefail
+
+action="${1:?usage: arp-pin add|del <ip>_<mac>}"
+spec="${2:?usage: arp-pin add|del <ip>_<mac>}"
+ip="${spec%%_*}"
+mac="${spec#*_}"
+
+[[ "$ip" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || { echo "bad IP: $ip" >&2; exit 2; }
+[[ "$mac" =~ ^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$ ]] || { echo "bad MAC: $mac" >&2; exit 2; }
+
+dev="$(ip -o route get "$ip" | sed -n 's/.* dev \([^ ]*\).*/\1/p')"
+[[ -n "$dev" ]] || { echo "no route to $ip" >&2; exit 1; }
+
+case "$action" in
+  add) ip neigh replace "$ip" lladdr "$mac" nud permanent dev "$dev" ;;
+  del) ip neigh del "$ip" dev "$dev" || true ;;
+  *)   echo "usage: arp-pin add|del <ip>_<mac>" >&2; exit 2 ;;
+esac

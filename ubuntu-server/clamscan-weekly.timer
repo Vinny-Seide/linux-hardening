@@ -1,0 +1,11 @@
+# /etc/systemd/system/clamscan-weekly.timer
+# Enable with: systemctl enable --now clamscan-weekly.timer
+[Unit]
+Description=Run the ClamAV full scan every Sunday at 04:00 UTC
+
+[Timer]
+OnCalendar=Sun *-*-* 04:00:00 UTC
+Persistent=true
+
+[Install]
+WantedBy=timers.target

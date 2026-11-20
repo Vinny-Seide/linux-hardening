@@ -1,0 +1,10 @@
+# /etc/fail2ban/jail.d/sshd.local
+[sshd]
+enabled  = true
+backend  = systemd
+journalmatch = _COMM=sshd
+maxretry = 5
+findtime = 10m
+bantime  = 30m
+# Never ban the management VLAN, so there is always a way back in.
+ignoreip = 127.0.0.1/8 192.168.10.0/24

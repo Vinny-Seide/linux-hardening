@@ -1,0 +1,11 @@
+# /etc/systemd/system/clamscan-weekly.service
+[Unit]
+Description=Weekly ClamAV full scan
+After=network-online.target
+
+[Service]
+Type=oneshot
+Nice=19
+IOSchedulingClass=idle
+ExecStart=/usr/bin/clamscan --recursive --infected --exclude-dir=^/proc --exclude-dir=^/sys --exclude-dir=^/dev --log=/var/log/clamav/weekly-scan.log /
+SuccessExitStatus=1
