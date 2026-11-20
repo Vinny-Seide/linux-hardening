@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# /etc/NetworkManager/dispatcher.d/90-no-autoconnect
+# Any Wi-Fi profile NetworkManager creates gets auto-connect turned off, so the laptop
+# never silently joins a network with a familiar name (evil-twin protection).
+set -euo pipefail
+
+event="${2:-}"
+[[ "$event" == "up" ]] || exit 0
+
+while IFS=: read -r uuid type autoconnect; do
+  if [[ "$type" == "802-11-wireless" && "$autoconnect" == "yes" ]]; then
+    nmcli connection modify "$uuid" connection.autoconnect no
+    logger -t no-autoconnect "turned off autoconnect for Wi-Fi profile $uuid"
+  fi
+done < <(nmcli -t -f UUID,TYPE,AUTOCONNECT connection show)

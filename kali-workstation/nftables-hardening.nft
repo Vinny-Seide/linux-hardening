@@ -1,0 +1,33 @@
+#!/usr/sbin/nft -f
+# /etc/nftables.conf on the Kali workstation. Loaded at boot by nftables.service.
+# The kill switch (nftables-vpn-killswitch.nft) is a separate table, added afterward by its own service.
+# Inbound: drop everything except replies. Outbound DNS: only the local DNSCrypt resolver
+# may send DNS, so nothing on the box can quietly use the network's (possibly poisoned) DNS.
+
+flush ruleset
+
+table inet hardening {
+  chain input {
+    type filter hook input priority filter; policy drop;
+    ct state established,related accept
+    ct state invalid drop
+    iif "lo" accept
+    meta l4proto ipv6-icmp icmpv6 type { nd-neighbor-solicit, nd-neighbor-advert, nd-router-advert, packet-too-big } accept
+    icmp type { echo-reply, destination-unreachable, time-exceeded } accept
+    meta l4proto udp udp sport 67 udp dport 68 accept
+  }
+
+  chain forward {
+    type filter hook forward priority filter; policy drop;
+  }
+
+  chain output {
+    type filter hook output priority filter; policy accept;
+    # DNS to the local resolver is fine.
+    oif "lo" udp dport 53 accept
+    oif "lo" tcp dport 53 accept
+    # Plain DNS anywhere else is blocked. DNSCrypt itself uses 443.
+    udp dport 53 counter reject
+    tcp dport 53 counter reject with tcp reset
+  }
+}

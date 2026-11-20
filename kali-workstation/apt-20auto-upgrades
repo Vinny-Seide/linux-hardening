@@ -1,0 +1,7 @@
+// /etc/apt/apt.conf.d/20auto-upgrades
+// Notify-only: download updates in the background, but never install them unattended
+// on a rolling distro. Updates are reviewed and applied by hand.
+APT::Periodic::Update-Package-Lists "1";
+APT::Periodic::Download-Upgradeable-Packages "1";
+APT::Periodic::Unattended-Upgrade "0";
+APT::Periodic::AutocleanInterval "7";

@@ -1,0 +1,19 @@
+# Relevant part of /etc/dnscrypt-proxy/dnscrypt-proxy.toml
+# Quad9 (malware-filtering resolver) over DNSCrypt, with DNSSEC required.
+listen_addresses = ['127.0.0.1:53']
+server_names = ['quad9-dnscrypt-ip4-filter-pri']
+ipv6_servers = false
+block_ipv6 = true
+require_dnssec = true
+require_nolog = true
+require_nofilter = false
+cache = true
+
+# Quad9's servers are included in the standard public resolver list,
+# which is signed by the dnscrypt-proxy project.
+[sources.public-resolvers]
+urls = ['https://raw.githubusercontent.com/DNSCrypt/dnscrypt-resolvers/master/v3/public-resolvers.md', 'https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md']
+cache_file = '/var/cache/dnscrypt-proxy/public-resolvers.md'
+minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+refresh_delay = 72
+prefix = ''

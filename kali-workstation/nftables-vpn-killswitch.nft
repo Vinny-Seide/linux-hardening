@@ -1,0 +1,21 @@
+#!/usr/sbin/nft -f
+# /etc/nftables.d/vpn-killswitch.nft
+# WireGuard kill switch. Loaded by vpn-killswitch.service before the tunnel comes up.
+# Nothing leaves the machine except: loopback, the tunnel itself, the WireGuard
+# handshake to the VPN server, and DHCP on the physical link.
+# Set VPN_ENDPOINT to the server address in the WireGuard config.
+
+define VPN_IF = "wg0"
+define VPN_ENDPOINT = 198.51.100.10
+define VPN_PORT = 51820
+
+table inet vpn_killswitch {
+  chain output {
+    type filter hook output priority filter + 10; policy drop;
+    oif "lo" accept
+    oifname $VPN_IF accept
+    ip daddr $VPN_ENDPOINT udp dport $VPN_PORT accept
+    udp sport 68 udp dport 67 accept
+    counter reject
+  }
+}
